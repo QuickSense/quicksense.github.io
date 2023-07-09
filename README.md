@@ -4,6 +4,7 @@
 [必应](https://www.bing.com)
 [谷歌](https://www.google.com)
 [Yandex](https://www.yandex.com)
+[Wikipedia](https://en.wikipedia.org/wiki/Main_Page)
 
 # 视频
 [A站](https://www.acfun.cn)
