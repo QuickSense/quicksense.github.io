@@ -1,11 +1,10 @@
-# Useful Websites for Ye1Ye 
-#搜索
+# 搜索
 [百度](https://www.baidu.com)
 [必应](https://www.bing.com)
 [谷歌](https://www.google.com)
 [Yandex](https://www.yandex.com)
 
-#视频
+# 视频
 [A站](https://www.acfun.cn)
 [B站](https://www.bilibili.com)
 [优酷](https://www.youku.com)
@@ -16,7 +15,7 @@
 [樱花动漫](https://www.mcdm5.com/)
 [JRS](http://www.jrskan.com/)
     
-#音乐
+# 音乐
 [咪咕](https://https://music.migu.cn/v3/music/player/audio)
 [网易云](https://https://music.163.com/)
 [QQ](https://y.qq.com/)
@@ -26,7 +25,7 @@
 
     
     
-#文献
+# 文献
 [ACP](https://acp.copernicus.org/)
 [EST](https://pubs.acs.org/journal/esthag)
 [Web of Science](https://www.webofscience.com/wos/alldb/basic-search)
@@ -34,7 +33,7 @@
 
 
 
-#SJTU 
+# SJTU 
 [Canvas](https://oc.sjtu.edu.cn/)
 [邮箱](https://mail.sjtu.edu.c)
 [研究生](http://yjs.sjtu.edu.cn/gsapp/sys/emaphome/portal/index.do)
