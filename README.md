@@ -13,7 +13,7 @@
         table {
             border-collapse: collapse;
             width: auto; /* 使表格宽度自适应内容 */
-            max-width: none; /* 覆盖CSS中可能设置的max-width限制 */
+            max-width: 100%; /* 覆盖CSS中可能设置的max-width限制 */
             white-space: nowrap; /* 防止单元格内容换行，允许滚动查看 */
         }
         th, td {
