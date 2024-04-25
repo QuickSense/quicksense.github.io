@@ -26,70 +26,71 @@
     </table>
 
     <script>
-        // Function to read and parse the CSV file
-        function readAndParseCSV(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const csvData = e.target.result;
-                const rows = csvData.split('\n').map(row => row.split(','));
-                const header = rows[0];
-                const data = rows.slice(1).map(row => {
-                    const rowData = {};
-                    row.forEach((field, i) => {
-                        rowData[header[i]] = field;
-                    });
-                    return rowData;
+        // 假设你已经有了CSV文件的内容，这里用一个示例字符串代替
+        const csvContent = `Year,City,University,Category,Major,Score1,Score2\n2023,Chongqing,East China Normal University,Physics,Computer Science and Technology,641,552\n...`;
+
+        // 解析CSV内容为对象数组
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',');
+            const rows = lines.slice(1).map(line => {
+                const cells = line.split(',');
+                const row = {};
+                cells.forEach((cell, index) => {
+                    row[headers[index]] = cell;
                 });
-                // Store data in global variable for access in other functions
-                window.csvData = data;
-                // Generate filter options
-                const filterSelect = document.getElementById('filterColumn');
-                header.forEach((col, i) => {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.textContent = col;
-                    filterSelect.appendChild(option);
-                });
-                // Display initial table
-                displayTable(data);
-            };
-            reader.readAsText(file);
+                return row;
+            });
+            return rows;
         }
 
-        // Function to display the CSV data as an HTML table
-        function displayTable(data) {
-            const table = document.getElementById('dataTable');
-            table.innerHTML = '';
-            const headerRow = table.insertRow();
-            header.forEach((col, i) => {
-                const headerCell = document.createElement('th');
-                headerCell.textContent = col;
-                headerRow.appendChild(headerCell);
-            });
-            data.forEach(rowData => {
-                const row = table.insertRow();
-                header.forEach((col, i) => {
-                    const cell = row.insertCell();
-                    cell.textContent = rowData[col];
-                });
+        // 动态生成筛选列的选项
+        function generateFilterOptions(data) {
+            const filterColumnSelect = document.getElementById('filterColumn');
+            data[0] && Object.keys(data[0]).forEach((key, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = key;
+                filterColumnSelect.appendChild(option);
             });
         }
 
-        // Function to apply the filter to the CSV data
+        // 应用筛选
         function applyFilter() {
             const filterColumn = document.getElementById('filterColumn').value;
             const filterValue = document.getElementById('filterValue').value;
-            const filteredData = window.csvData.filter(row => row[header[filterColumn]] === filterValue);
+            const filteredData = data.filter(row => row[headers[filterColumn]] === filterValue);
+
+            // 更新表格
             displayTable(filteredData);
         }
 
-        // Event listener for file input change
-        document.getElementById('csvFileInput').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                readAndParseCSV(file);
-            }
-        });
+        // 显示表格
+        function displayTable(data) {
+            const table = document.getElementById('dataTable');
+            table.innerHTML = ''; // 清除旧表格
+            // 添加表头
+            const headerRow = table.insertRow();
+            header.forEach((headerName, index) => {
+                const headerCell = document.createElement('th');
+                headerCell.textContent = headerName;
+                headerRow.appendChild(headerCell);
+            });
+            // 添加数据行
+            data.forEach(rowData => {
+                const row = table.insertRow();
+                Object.values(rowData).forEach(value => {
+                    const cell = row.insertCell();
+                    cell.textContent = value;
+                });
+            });
+        }
+
+        // 初始化数据和筛选列选项
+        const data = parseCSV(csvContent);
+        const header = data.length ? Object.keys(data[0]) : [];
+        generateFilterOptions(data);
+        displayTable(data);
     </script>
 </body>
 </html>
