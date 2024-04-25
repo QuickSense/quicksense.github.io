@@ -57,3 +57,74 @@
 
 
 
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  #myTable tr {
+    display: none;
+  }
+</style>
+</head>
+<body>
+ 
+<input type="text" id="myInput" onkeyup="filterFunction()" placeholder="Search for names..">
+ 
+<table id="myTable">
+  <tr class="header">
+    <th style="color:blue">Name</th>
+    <th style="color:blue">City</th>
+    <th style="color:blue">Country</th>
+  </tr>
+  <tr>
+    <td>Alfreds Futterkiste</td>
+    <td>Berlin</td>
+    <td>Germany</td>
+  </tr>
+  <tr>
+    <td>Ana Trujillo Emparedados y helados</td>
+    <td>México D.F.</td>
+    <td>Mexico</td>
+  </tr>
+  <tr>
+    <td>Antonio Moreno Taquería</td>
+    <td>México D.F.</td>
+    <td>Mexico</td>
+  </tr>
+  <tr>
+    <td>Around the Horn</td>
+    <td>London</td>
+    <td>UK</td>
+  </tr>
+  <tr>
+    <td>B's Beverages</td>
+    <td>London</td>
+    <td>UK</td>
+  </tr>
+</table>
+ 
+<script>
+function filterFunction() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 1; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td");
+    for (j = 0; j < td.length; j++) {
+      txtValue = td[j].textContent || td[j].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+        break;
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+ 
+</body>
+</html>
+
