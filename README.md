@@ -1,18 +1,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CSV Data with Filtering</title>
+    <title>CSV Data with Filtering and Scrolling</title>
     <style>
-        table, th, td {
-            border: 1px solid black;
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .table-container {
+            overflow-x: auto; /* 允许横向滚动 */
+            max-width: 100%; /* 确保不会超过屏幕宽度 */
+        }
+        table {
             border-collapse: collapse;
+            width: auto; /* 使表格宽度自适应内容 */
+            max-width: none; /* 覆盖CSS中可能设置的max-width限制 */
+            white-space: nowrap; /* 防止单元格内容换行，允许滚动查看 */
         }
         th, td {
-            padding: 5px;
+            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
+
 <body>
     <label for="filterColumn">Filter by column:</label>
     <select id="filterColumn"></select>
