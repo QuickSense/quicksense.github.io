@@ -91,6 +91,7 @@
         <input type="text" id="find-input" placeholder="输入关键词查找高亮...">
         <button onclick="findInTable()">查找高亮</button>
         <button onclick="clearHighlight()">取消高亮</button>
+        <input id="csv-file-input" type="file" accept=".csv" style="display: none;" />
         <div id="filter-section">
             <!-- ... 其他输入框和按钮 ... -->
             <button id="toggle-darkmode">切换深色模式</button>
@@ -256,14 +257,26 @@
         });
         // 页面加载时读取CSV文件并填充表格
         document.addEventListener('DOMContentLoaded', function() {
-            var csvFileInput = document.createElement('input');
-            csvFileInput.type = 'file';
-            csvFileInput.accept = '.csv';
-            csvFileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                readCSV(file, populateTable);
-            });
-            document.body.appendChild(csvFileInput); // 添加文件输入控件
+            var csvFilePath = 'demo.csv'; // CSV文件的路径
+            var fileInput = document.getElementById('csv-file-input');
+            var reader = new FileReader();
+        
+            reader.onload = function(e) {
+                var rows = e.target.result.split(/\r\n|\n/);
+                var parsedData = [];
+                // 解析CSV数据
+                parsedData.push(rows[0].split(',')); // 头部
+                for (var i = 1; i < rows.length; i++) {
+                    if (rows[i]) {
+                        parsedData.push(rows[i].split(','));
+                    }
+                }
+                populateTable(parsedData); // 填充表格
+            };
+        
+            // 模拟文件读取过程
+            var blob = new Blob([`\uFEFF${csvFilePath}`], { type: 'text/csv' });
+            reader.readAsText(blob);
 
             // 监听搜索框输入
             document.getElementById('search-input').addEventListener('input', searchTable);
