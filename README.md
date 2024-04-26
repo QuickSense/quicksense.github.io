@@ -1,20 +1,12 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CSV Data with Filtering and Scrolling</title>
+    <title>CSV Data Table</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .table-container {
-            overflow-x: auto; /* 允许横向滚动 */
-            max-width: 100%; /* 确保不会超过屏幕宽度 */
-        }
         table {
+            width: 100%;
             border-collapse: collapse;
-            width: auto; /* 使表格宽度自适应内容 */
-            max-width: 100%; /* 覆盖CSS中可能设置的max-width限制 */
-            white-space: nowrap; /* 防止单元格内容换行，允许滚动查看 */
         }
         th, td {
             border: 1px solid #ddd;
@@ -24,232 +16,380 @@
         th {
             background-color: #f2f2f2;
         }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #eaeaea;
+        }
+        #filter-section {
+            margin-bottom: 10px;
+        }
+        #comparison-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        #comparison-box th, #comparison-box td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #comparison-box th {
+            background-color: #f2f2f2;
+        }
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f5f5f5;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+        }
+        .comparison-header button {
+            margin-left: 10px;
+        }
+        /* 默认的亮色主题样式保持不变 */
+
+        /* 深色模式样式 */
+        .dark-mode {
+            background-color: #121212;
+            color: #f9981c;
+        }
+        .dark-mode table {
+            border-color: #303030;
+        }
+        .dark-mode th {
+            background-color: #1e1e1e;
+        }
+        .dark-mode tr:nth-child(even) {
+            background-color: #1c1c1c;
+        }
+        .dark-mode tr:hover {
+            background-color: #2a2a2a;
+            
+        }
+        .dark-mode #search-input {
+            background-color: #080808;
+            color: #f9981c;
+            border: 1px solid #0c0000;
+        }
+        
+        /* 深色模式下搜索框聚焦时的样式 */
+        .dark-mode #search-input:focus {
+            background-color: #383838;
+            color: #033335;
+            border-color: #555555;}
+        /* 其他需要改变颜色的元素... */
     </style>
 </head>
-
 <body>
-    <label for="filterColumn">Filter by column:</label>
-    <select id="filterColumn"></select>
-    <label for="filterValue">Enter filter value:</label>
-    <input type="text" id="filterValue">
-    <button onclick="applyFilter()">Apply Filter</button>
+    <div id="filter-section">
+        <input type="text" id="search-input" placeholder="输入关键词搜索...">
+        <button onclick="searchTable()">搜索</button>
+        <input type="text" id="find-input" placeholder="输入关键词查找高亮...">
+        <button onclick="findInTable()">查找高亮</button>
+        <button onclick="clearHighlight()">取消高亮</button>
+        <div id="filter-section">
+            <!-- ... 其他输入框和按钮 ... -->
+            <button id="toggle-darkmode">切换深色模式</button>
+        </div>
+    </div>
+    
+    <div id="comparison-box">
+        <div class="comparison-header">
+            <h3>对比框</h3>
+            <button id="clear-comparison">清除所有对比项</button>
+        </div>
+        <table id="comparison-table">
+            <thead>
+                <tr>
+                    <th>年度</th>
+                    <th>省份</th>
+                    <th>学校</th>
+                    <th>录取批次</th>
+                    <th>文/理（选科要求）</th>
+                    <th>专业</th>
+                    <th>录取最低分</th>
+                    <th>省内排名</th>
+                    <th>本科线（本一）</th>
+                    <th>本二线</th>
+                    <!-- 其他列 -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 对比内容将通过JavaScript动态添加 -->
+            </tbody>
+        </table>
+    </div>
 
-    <table id="dataTable">
-        <!-- CSV data will be inserted here as a table -->
+
+
+    <h2>数据表</h2>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>年度</th>
+                <th>省份</th>
+                <th>学校</th>
+                <th>录取批次</th>
+                <th>文/理（选科要求）</th>
+                <th>专业</th>
+                <th>录取最低分</th>
+                <th>省内排名</th>
+                <th>本科线（本一）</th>
+                <th>本二线</th>
+                <!-- 根据CSV数据添加其他列 -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 数据行将通过JavaScript动态添加 -->
+        </tbody>
     </table>
 
+
+
     <script>
-        // 假设你已经有了CSV文件的内容，这里用一个示例字符串代替
-        const csvContent = `年度,省份,学校,录取批次,文/理（选科要求）,专业,录取最低分,省内排名,本科线（本一）,本二,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),地理科学（闵行校区）,654,1648,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,物理学（闵行校区）,652,1906,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,统计学（含“统计学-计算机科学与技术”双学士学位）（闵行校区）,652,1906,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,数学与应用数学（闵行校区）,652,1906,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,心理学类（071101.心理学+071102.应用心理学）（中山北路校区）,650,2211,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),人文地理与城乡规划（闵行校区）,647,2638,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学/生物(2选1),生物科学类（071001.生物科学+071002.生物技术）（闵行校区）,643,3353,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),地理信息科学（闵行校区）,643,3353,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,软件工程（第三、四年学费16000元/学年）（中山北路校区）,643,3353,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学,化学（闵行校区）,642,3579,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,工商管理类（120201.工商管理+120203.会计学+120901.旅游管理）（闵行校区）,642,3579,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,计算机科学与技术（中山北路校区）,641,3799,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,统计学类（071201.统计学+020302.金融工程+020303.保险学）（闵行校区）,641,3799,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选化学/生物(2选1),环境科学与工程类（082503.环境科学+082504.环境生态工程）（闵行校区）,640,4006,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,金融学类（020301.金融学+020101.经济学）（闵行校区）,640,4006,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,数据科学与大数据技术（中山北路校区）,639,4243,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,通信工程（闵行校区）,639,4243,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,工商管理（中法创新实验班；与法国里昂商学院合作办学，全英授课，须学法语，具体培养模式请查看学校网站）（闵行校区）,639,4243,445,,,,,,
-2022,广东,华东师范大学,本科批,首选物理，再选不限,金融学（含“金融学-统计学”双学士学位）（闵行校区）,639,4243,445,,,,,,
-2022,广东,华东师范大学,特殊类型招生批,首选物理，再选不限,计算机科学与技术（中山北路校区）,608 ,16821,445,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,历史学（闵行校区）,623,368,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,法学（含“法学-心理学”双学士学位）（闵行校区）,621,427,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,英语（闵行校区）（英语）,619,497,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,汉语言文学（闵行校区）,619,497,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,社会学类（030301.社会学+030302.社会工作）（闵行校区）,618,537,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,法语（闵行校区）（英语）,618,537,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,汉语国际教育（中山北路校区）,617,579,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,法学（闵行校区）,615,670,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,金融学类（020301.金融学+020101.经济学）（闵行校区）,613,774,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,新闻传播学类（050301.新闻学+050305.编辑出版学）（闵行校区）,613,774,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,教育学类（040106.学前教育+040105.艺术教育+040108.特殊教育+040110.教育康复学+120401.公共事业管理）（中山北路校区）,608,1053,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,工商管理（中法创新实验班；全英授课，须学法语；与法国里昂商学院合作办学，具体培养模式和学习费用请查看学校网站）（闵行校区）,607,1119,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,工商管理类（120201.工商管理+120203.会计学+120901.旅游管理）（闵行校区）,607,1119,437,,,,,,
-2022,广东,华东师范大学,本科批,首选历史，再选不限,翻译（闵行校区）（英语）,607,1119,437,,,,,,
-2022,广东,华东师范大学,特殊类型招生批,首选历史，再选不限,教育学类（040106.学前教育+040105.艺术教育+040108.特殊教育+040110.教育康复学+120401.公共事业管理）（中山北路校区）,585,3513,437,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,数学与应用数学（办学地点：闵行校区）,660,1589,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,物理学类（070201.物理学+080401.材料科学与工程）（办学地点：闵行校区）,657,1969,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,软件工程（办学地点：中山北路校区）（第三、四年学费16000元/学年）,655,2288,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,心理学类（071101.心理学+071102.应用心理学）（招生特征不招色盲色弱；办学地点：中山北路校区）,654,2426,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),地理科学（招生特征不招色盲；办学地点：闵行校区）,654,2426,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,计算机科学与技术（办学地点：中山北路校区）,653,2585,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,统计学（办学地点：闵行校区）（与计算机科学与技术双学位）,652,2744,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,统计学类（071201.统计学+020302.金融工程+020303.保险学）（办学地点：闵行校区）,652,2744,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,数据科学与大数据技术（办学地点：中山北路校区）,652,2744,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,信息管理与信息系统（办学地点：闵行校区）,651,2905,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),地理信息科学（办学地点：闵行校区）,650,3074,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/地理(2选1),人文地理与城乡规划（办学地点：闵行校区）,648,3452,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,金融学类（020301.金融学+020101.经济学）（办学地点：闵行校区）,648,3452,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/生物(2选1),生物科学类（071001.生物科学+071002.生物技术）（招生特征不招色盲色弱；办学地点：闵行校区）,647,3640,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,金融学（办学地点：闵行校区）（与统计学专业双学位）,647,3640,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选不限,工商管理类（120201.工商管理+120203.会计学+120901.旅游管理）（办学地点：闵行校区）,647,3640,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学,化学（招生特征不招色盲色弱；办学地点：闵行校区）,646,3850,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/生物(2选1),生态学（招生特征不招色盲色弱；办学地点：闵行校区）,645,4071,432,,,,,,
-2021,广东,华东师范大学,本科批,首选物理，再选化学/生物(2选1),环境科学与工程类（082503.环境科学+082504.环境生态工程）（办学地点：闵行校区）,644,4297,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,历史学（办学地点：闵行校区）,638,286,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,汉语言文学（办学地点：闵行校区）,635,376,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,英语（外语语种英语；办学地点：闵行校区）（语种要求:英语）,635,376,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,法学（办学地点：闵行校区）（与心理学双学位）,634,415,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,新闻传播学类（050301.新闻学+050305.编辑出版学）（办学地点：闵行校区）,634,415,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,教育学类（040106.学前教育+040105.艺术教育+040108.特殊教育+040110.教育康复学+120401.公共事业管理）（办学地点：中山北路校区）,632,492,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,翻译（外语语种英语；办学地点：闵行校区）（语种要求:英语）,632,492,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,法语（外语语种英语；办学地点：闵行校区）（语种要求:英语）,630,570,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,社会学类（030301.社会学+030302.社会工作）（办学地点：闵行校区）,628,655,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,汉语国际教育（办学地点：中山北路校区）,627,700,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,工商管理类（120201.工商管理+120203.会计学+120901.旅游管理）（办学地点：闵行校区）,626,750,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,法学（办学地点：闵行校区）,624,846,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,金融学类（020301.金融学+020101.经济学）（办学地点：闵行校区）,624,846,432,,,,,,
-2021,广东,华东师范大学,本科批,首选历史，再选不限,工商管理（办学地点：闵行校区）（具体培养模式和学习费用请查看学校网站）（中法创新实验班）,623,902,432,,,,,,
-2023,河南,华东师范大学,本科一批,理科,数学与应用数学（办学地点:闵行校区）,650,3275,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,电子信息科学与技术（办学地点:闵行校区）,637,5800,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,微电子科学与工程（办学地点:闵行校区）,635,6311,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,通信工程（办学地点:闵行校区）,634,6603,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,统计学（双学位）（办学地点:闵行校区;与计算机科学与技术进行双学士学位培养）,633,6878,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,数据科学与大数据技术（办学地点:普陀校区）,633,6878,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,心理学（双学位）（办学地点:普陀校区;与计算机科学与技术进行双学士学位培养）,631,7493,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,金融学（双学位）（办学地点:闵行校区;与统计学进行双学士学位培养）,631,7493,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,信息管理与信息系统（办学地点:闵行校区）,630,7810,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,心理学类（包含专业:心理学，应用心理学;办学地点:普陀校区）,629,8100,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,心理学类（包含专业:心理学，应用心理学;办学地点:普陀校区）,629,8100,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,物理学（办学地点:闵行校区）,628,8437,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,统计学类（包含专业:统计学，保险学;办学地点:闵行校区）,627,8771,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,人文地理与城乡规划（办学地点:闵行校区）,627,8771,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,金融学类（包含专业:金融学，经济学;办学地点:闵行校区）,627,8771,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,软件工程（办学地点:普陀校区;第三，四年学费16000元/年）,626,9098,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,地理信息科学（办学地点:闵行校区）,626,9098,514,,,,,,
-2023,河南,华东师范大学,本科一批,理科,地理科学（办学地点:闵行校区）,625,9462,514,,,,,,
-2023,河南,华东师范大学,本科一批,文科,汉语言文学（办学地点:闵行校区）,644,515,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,马克思主义理论（办学地点:闵行校区）,642,573,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,英语（办学地点:闵行校区;只招英语语种考生）,639,700,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,社会学类（包含专业:社会学，社会工作;办学地点:闵行校区）,639,700,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,金融学类（包含专业:金融学，经济学;办学地点:闵行校区）,638,744,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,汉语国际教育（办学地点:普陀校区）,638,744,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,公共管理类（包含专业:人力资源管理，行政管理;办学地点:普陀校区）,637,793,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,教育学类（师范）（包含专业:学前教育，特殊教育，教育康复学，公共事业管理;办学地点:普陀校区）,637,793,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,新闻传播学类（包含专业:新闻学，编辑出版学;办学地点:闵行校区）,637,793,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,翻译（办学地点:闵行校区;只招英语语种考生）,637,793,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,人文地理与城乡规划（办学地点:闵行校区）,636,839,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,法语（办学地点:闵行校区;只招英语语种考生）,636,839,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,工商管理（中法创新实验班）（办学地点:闵行校区;与法国里昂商学院合办，专业课程为全英文授课，须学法语;后两年可申请去法国，另按法方规定缴纳学费）,636,839,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,工商管理类（包含专业:工商管理，会计学，旅游管理;办学地点:闵行校区）,636,839,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,俄语（办学地点:闵行校区;只招英语语种考生）,636,839,547,,,,,,
-2023,河南,华东师范大学,本科一批,文科,日语（办学地点:闵行校区;只招英语语种考生）,635,886,547,,,,,,
-2022,河南,华东师范大学,本科一批,理科,统计学（双学位，与计算机科学与技术双学位）,637,3333,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,数学与应用数学,636,3480,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,数据科学与大数据技术,634,3843,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,教育技术学（双学位，与计算机科学与技术双学位）,633,4040,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,软件工程,633,4040,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,计算机科学与技术,631,4434,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,工商管理（中法创新实验班，本校与法国里昂商学院合办）,629,4848,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,微电子科学与工程,627,5267,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,物理学,627,5267,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,金融学类,625,5771,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,心理学类,624,6028,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,统计学类,621,6875,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,心理学（双学位，与计算机科学与技术双学位）,621,6875,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,电子信息科学与技术（含:电子信息科学与技术、光电信息科学与工程;3个专业）,620,7180,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,地理科学,620,7180,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,金融学（双学位，与统计学专业双学位）,617,8122,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,教育技术学（师范）,616,8467,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,工商管理类,612,9863,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,通信工程,612,9863,509,,,,,,
-2022,河南,华东师范大学,本科一批,理科,听力与言语康复学,609,11202,509,,,,,,
-2022,河南,华东师范大学,本科一批,文科,汉语言文学,616,434,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,历史学,614,487,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,法学,612,554,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,金融学类,612,554,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,人文地理与城乡规划,611,588,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,新闻传播学类,611,588,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,英语,611,588,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,翻译,610,628,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,马克思主义理论,610,628,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,工商管理（中法创新实验班，中外合作办学）（中外合作办学）,609,669,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,工商管理类,609,669,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,法学（双学位，与心理学双学位）,609,669,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,法语,608,720,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,哲学,608,720,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,日语,607,759,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,教育学类（师范）,607,759,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,政治学与行政学,607,759,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,公共管理类,606,804,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,政治学与行政学（双学位，与新闻学双学位）,606,804,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,俄语,605,883,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,汉语国际教育,605,883,527,,,,,,
-2022,河南,华东师范大学,本科一批,文科,社会学类,605,883,527,,,,,,
+        // 使用FileReader API读取CSV文件
+        function readCSV(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var rows = e.target.result.split(/\r\n|\n/);
+                var parsedData = [];
+                // 解析CSV数据
+                parsedData.push(rows[0].split(',')); // 头部
+                for (var i = 1; i < rows.length; i++) {
+                    if (rows[i]) {
+                        parsedData.push(rows[i].split(','));
+                    }
+                }
+                callback(parsedData);
+            };
+            reader.readAsText(file);
+        }
 
-\n...`;
+        // 将数据行动态添加到表格中
 
-        // 解析CSV内容为对象数组
-        function parseCSV(csv) {
-            const lines = csv.split('\n');
-            const headers = lines[0].split(',');
-            const rows = lines.slice(1).map(line => {
-                const cells = line.split(',');
-                const row = {};
-                cells.forEach((cell, index) => {
-                    row[headers[index]] = cell;
+        // 更新 populateTable 函数以包含操作按钮
+        function populateTable(data) {
+            var tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // 清空表格
+            data.forEach(function(row) {
+                var tr = document.createElement('tr');
+                row.forEach(function(value, index) {
+                    var td = document.createElement('td');
+                    td.textContent = value;
+                    tr.appendChild(td);
+                    // 不含操作按钮的列
+                    if (index === row.length - 1) {
+                        var btn = document.createElement('button');
+                        btn.textContent = '添加到对比框';
+                        btn.onclick = function() {
+                            addToComparison(row);
+                        };
+                        td.appendChild(btn);
+                    }
                 });
-                return row;
-            });
-            return rows;
-        }
-
-        // 动态生成筛选列的选项
-        function generateFilterOptions(data) {
-            const filterColumnSelect = document.getElementById('filterColumn');
-            data[0] && Object.keys(data[0]).forEach((key, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = key;
-                filterColumnSelect.appendChild(option);
+                tableBody.appendChild(tr);
             });
         }
 
-        // 应用筛选
-        function applyFilter() {
-            const filterColumn = document.getElementById('filterColumn').value;
-            const filterValue = document.getElementById('filterValue').value;
-            const filteredData = data.filter(row => row[headers[filterColumn]] === filterValue);
+        // 之前的JavaScript代码保持不变
+        var comparisonData = []; // 全局数组，存储对比框的数据
 
-            // 更新表格
-            displayTable(filteredData);
+        // 更新 addToComparison 函数以创建表格行
+        function addToComparison(row) {
+            if (comparisonData.length >= 20) {
+                alert('对比框中的项数已达到最大限制（20项）');
+                return;
+            }
+            var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
+            var tr = document.createElement('tr');
+            row.forEach(function(value) {
+                var td = document.createElement('td');
+                td.textContent = value;
+                tr.appendChild(td);
+            });
+            // 删除按钮
+            var deleteButton = document.createElement('button');
+            deleteButton.textContent = '删除';
+            deleteButton.onclick = function() {
+                removeFromComparison(tr);
+            };
+            var tdButton = document.createElement('td');
+            tdButton.appendChild(deleteButton);
+            tr.appendChild(tdButton);
+
+            comparisonTableBody.appendChild(tr);
+            comparisonData.push(row); // 将当前行数据添加到全局数组
         }
 
-        // 显示表格
-        function displayTable(data) {
-            const table = document.getElementById('dataTable');
-            table.innerHTML = ''; // 清除旧表格
-            // 添加表头
-            const headerRow = table.insertRow();
-            header.forEach((headerName, index) => {
-                const headerCell = document.createElement('th');
-                headerCell.textContent = headerName;
-                headerRow.appendChild(headerCell);
+        // 删除特定对比项的函数
+        function removeFromComparison(trElement) {
+            var index = comparisonData.findIndex(function(row) {
+                // 假设每一行数据都是唯一的，可以通过行数据查找
+                return row.join('') === Array.from(trElement.getElementsByTagName('td')).slice(0, -1).map(td => td.textContent).join('');
             });
-            // 添加数据行
-            data.forEach(rowData => {
-                const row = table.insertRow();
-                Object.values(rowData).forEach(value => {
-                    const cell = row.insertCell();
-                    cell.textContent = value;
+            if (index > -1) {
+                comparisonData.splice(index, 1); // 从对比数据中移除
+                trElement.remove(); // 从DOM中移除
+            }
+        }
+        
+
+        // 页面加载时读取CSV文件并填充表格
+        document.addEventListener('DOMContentLoaded', function() {
+            // 之前的页面加载事件代码保持不变
+            // 监听搜索框输入
+            var csvFileInput = document.createElement('input');
+            document.getElementById('search-input').addEventListener('input', searchTable);
+
+            // 清除所有对比项的按钮事件
+            document.getElementById('clear-comparison').addEventListener('click', function() {
+                var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
+                while (comparisonTableBody.firstChild) {
+                    comparisonTableBody.removeChild(comparisonTableBody.firstChild);
+                }
+                comparisonData = []; // 清空全局数组
+            });
+        });
+        // 页面加载时读取CSV文件并填充表格
+        document.addEventListener('DOMContentLoaded', function() {
+            var csvFileInput = document.createElement('input');
+            csvFileInput.type = 'file';
+            csvFileInput.accept = '.csv';
+            csvFileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                readCSV(file, populateTable);
+            });
+            document.body.appendChild(csvFileInput); // 添加文件输入控件
+
+            // 监听搜索框输入
+            document.getElementById('search-input').addEventListener('input', searchTable);
+        });
+
+        var ths = document.querySelectorAll('#data-table th');
+        ths.forEach(function(th, index) {
+            th.addEventListener('click', function() {
+                sortTable(index, this.textContent);
+            });
+        });
+
+
+        document.getElementById('search-input').addEventListener('input', searchTable);
+
+        // 监听查找框按钮点击事件
+        document.getElementById('find-input').addEventListener('click', findInTable);
+
+        function searchTable() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("search-input");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("data-table");
+            tr = table.getElementsByTagName("tr");
+        
+            for (i = 1; i < tr.length; i++) { // 跳过表头
+                tr[i].style.display = "none"; // 先全部隐藏
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = ""; // 显示匹配的行
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var csvFileInput = document.getElementById('csv-file-input');
+            csvFileInput.addEventListener('change', handleFileSelect);
+        
+            var ths = document.querySelectorAll('#data-table th');
+            ths.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortTable(index, th.textContent);
                 });
             });
+        
+            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+        });
+        
+        var ascending = true;
+        
+        function sortTable(columnIndex, columnText) {
+            var table = document.getElementById("data-table");
+            var rows = table.rows;
+            var sortedRows = Array.from(rows).slice(1); // 去掉表头
+            sortedRows.sort(function(a, b) {
+                var x = a.cells[columnIndex].textContent.trim();
+                var y = b.cells[columnIndex].textContent.trim();
+                return ascending ? x.localeCompare(y) : y.localeCompare(x);
+            });
+        
+            for (var i = 0; i < sortedRows.length; i++) {
+                table.tBodies[0].appendChild(sortedRows[i]);
+            }
+            ascending = !ascending; // 切换排序方向
         }
 
-        // 初始化数据和筛选列选项
-        const data = parseCSV(csvContent);
-        const header = data.length ? Object.keys(data[0]) : [];
-        generateFilterOptions(data);
-        displayTable(data);
+
+        function findInTable() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("find-input");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("data-table");
+            tr = table.getElementsByTagName("tr");
+        
+            // 先移除之前的高亮
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.backgroundColor = "";
+            }
+        
+            for (i = 1; i < tr.length; i++) { // 跳过表头
+                tr[i].style.display = "none"; // 先全部隐藏
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = ""; // 显示匹配的行
+                            tr[i].style.backgroundColor = "yellow"; // 高亮显示
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        function clearHighlight() {
+            var table = document.getElementById("data-table");
+            var trs = table.getElementsByTagName("tr");
+            for (var i = 1; i < trs.length; i++) { // 跳过表头
+                trs[i].style.backgroundColor = "";
+            }
+        }
+
+        function handleFileSelect(event) {
+            var file = event.target.files[0];
+            readCSV(file, populateTable);
+        }
+        
+        var csvFileInput = document.createElement('input');
+        csvFileInput.type = 'file';
+        csvFileInput.accept = '.csv';
+        csvFileInput.id = 'csv-file-input';
+        document.getElementById('filter-section').appendChild(csvFileInput);
+
+        // 监听深色模式切换按钮
+        document.getElementById('toggle-darkmode').addEventListener('click', function() {
+            var body = document.body;
+            body.classList.toggle('dark-mode');
+        });
+ 
     </script>
 </body>
 </html>
