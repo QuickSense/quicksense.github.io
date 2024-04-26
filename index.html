@@ -91,7 +91,6 @@
         <input type="text" id="find-input" placeholder="输入关键词查找高亮...">
         <button onclick="findInTable()">查找高亮</button>
         <button onclick="clearHighlight()">取消高亮</button>
-        <input id="csv-file-input" type="file" accept=".csv" style="display: none;" />
         <div id="filter-section">
             <!-- ... 其他输入框和按钮 ... -->
             <button id="toggle-darkmode">切换深色模式</button>
@@ -257,26 +256,14 @@
         });
         // 页面加载时读取CSV文件并填充表格
         document.addEventListener('DOMContentLoaded', function() {
-            var csvFilePath = 'demo.csv'; // CSV文件的路径
-            var fileInput = document.getElementById('csv-file-input');
-            var reader = new FileReader();
-        
-            reader.onload = function(e) {
-                var rows = e.target.result.split(/\r\n|\n/);
-                var parsedData = [];
-                // 解析CSV数据
-                parsedData.push(rows[0].split(',')); // 头部
-                for (var i = 1; i < rows.length; i++) {
-                    if (rows[i]) {
-                        parsedData.push(rows[i].split(','));
-                    }
-                }
-                populateTable(parsedData); // 填充表格
-            };
-        
-            // 模拟文件读取过程
-            var blob = new Blob([`\uFEFF${csvFilePath}`], { type: 'text/csv' });
-            reader.readAsText(blob);
+            var csvFileInput = document.createElement('input');
+            csvFileInput.type = 'file';
+            csvFileInput.accept = '.csv';
+            csvFileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                readCSV(file, populateTable);
+            });
+            
 
             // 监听搜索框输入
             document.getElementById('search-input').addEventListener('input', searchTable);
@@ -318,27 +305,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 直接读取同一目录下的demo.csv文件
-            var csvFilePath = 'demo.csv'; // CSV文件的路径
-            var fileInput = document.getElementById('csv-file-input');
-            var reader = new FileReader();
+
         
-            reader.onload = function(e) {
-                var rows = e.target.result.split(/\r\n|\n/);
-                var parsedData = [];
-                // 解析CSV数据
-                parsedData.push(rows[0].split(',')); // 头部
-                for (var i = 1; i < rows.length; i++) {
-                    if (rows[i]) {
-                        parsedData.push(rows[i].split(','));
-                    }
-                }
-                populateTable(parsedData); // 填充表格
-            };
+            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+        });
         
-            // 模拟文件读取过程
-            var blob = new Blob([`\uFEFF${csvFilePath}`], { type: 'text/csv' });
-            reader.readAsText(blob);
         var ascending = true;
         
         function sortTable(columnIndex, columnText) {
@@ -399,17 +370,58 @@
             readCSV(file, populateTable);
         }
         
-        var csvFileInput = document.createElement('input');
-        csvFileInput.type = 'file';
-        csvFileInput.accept = '.csv';
-        csvFileInput.id = 'csv-file-input';
-        document.getElementById('filter-section').appendChild(csvFileInput);
+        // 修改后的 readFixedCSV 函数
+        function readFixedCSV(filename, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', filename, true);
+            xhr.onload = function(e) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var rows = xhr.responseText.split(/\r\n|\n/);
+                        var parsedData = [];
+                        // 解析CSV数据
+                        parsedData.push(rows[0].split(',')); // 头部
+                        for (var i = 1; i < rows.length; i++) {
+                            if (rows[i]) {
+                                parsedData.push(rows[i].split(','));
+                            }
+                        }
+                        callback(parsedData);
+                    } else {
+                        console.error('Could not load the CSV file.');
+                    }
+                }
+            };
+            xhr.onerror = function(e) {
+                console.error('Failed to read the CSV file.');
+            };
+            xhr.send(null);
+        }
 
-        // 监听深色模式切换按钮
-        document.getElementById('toggle-darkmode').addEventListener('click', function() {
-            var body = document.body;
-            body.classList.toggle('dark-mode');
-        });
+        function clearComparison() {
+            var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
+            while (comparisonTableBody.firstChild) {
+                comparisonTableBody.removeChild(comparisonTableBody.firstChild);
+            }
+            comparisonData = []; // 清空全局数组
+
+        }
+        // 页面加载完成后执行的事件处理函数
+        document.addEventListener('DOMContentLoaded', function() {
+            // 调用 readFixedCSV 函数读取 CSV 文件
+            readFixedCSV('demo.csv', populateTable);
+            // 为清除所有对比项的按钮添加点击事件
+            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+
+            // 为搜索输入框添加输入事件
+            document.getElementById('search-input').addEventListener('input', searchTable);
+
+            // 为深色模式切换按钮添加点击事件
+            document.getElementById('toggle-darkmode').addEventListener('click', function() {
+                var body = document.body;
+                body.classList.toggle('dark-mode');
+            });
+        ;})
  
     </script>
 </body>
