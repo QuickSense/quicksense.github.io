@@ -318,19 +318,27 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            var csvFileInput = document.getElementById('csv-file-input');
-            csvFileInput.addEventListener('change', handleFileSelect);
+            // 直接读取同一目录下的demo.csv文件
+            var csvFilePath = 'demo.csv'; // CSV文件的路径
+            var fileInput = document.getElementById('csv-file-input');
+            var reader = new FileReader();
         
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortTable(index, th.textContent);
-                });
-            });
+            reader.onload = function(e) {
+                var rows = e.target.result.split(/\r\n|\n/);
+                var parsedData = [];
+                // 解析CSV数据
+                parsedData.push(rows[0].split(',')); // 头部
+                for (var i = 1; i < rows.length; i++) {
+                    if (rows[i]) {
+                        parsedData.push(rows[i].split(','));
+                    }
+                }
+                populateTable(parsedData); // 填充表格
+            };
         
-            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
-        });
-        
+            // 模拟文件读取过程
+            var blob = new Blob([`\uFEFF${csvFilePath}`], { type: 'text/csv' });
+            reader.readAsText(blob);
         var ascending = true;
         
         function sortTable(columnIndex, columnText) {
