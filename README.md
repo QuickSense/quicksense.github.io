@@ -409,7 +409,7 @@
         // 页面加载完成后执行的事件处理函数
         document.addEventListener('DOMContentLoaded', function() {
             // 调用 readFixedCSV 函数读取 CSV 文件
-            readFixedCSV('Guangdong.csv', populateTable);
+            readFixedCSV('data_web.csv', populateTable);
             // 为清除所有对比项的按钮添加点击事件
             document.getElementById('clear-comparison').addEventListener('click', clearComparison);
 
