@@ -235,7 +235,10 @@
             ths.forEach(function(th, index) {
                 th.addEventListener('click', function() {
                     sortTable(index, th.textContent);
-          
+            var comparisonThs = document.querySelectorAll('#comparison-table th');
+            comparisonThs.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortComparisonTable(index, th.textContent);
                 });
             });
         });
