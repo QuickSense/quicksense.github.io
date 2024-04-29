@@ -230,7 +230,10 @@
             document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
             document.getElementById('clear-comparison').addEventListener('click', clearComparison);
             document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-
+             var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
+    comparisonTableHeaders.forEach(function(header, index) {
+        header.addEventListener('click', function() {
+            sortComparisonTable(index, header.textContent);
             var ths = document.querySelectorAll('#data-table th');
             ths.forEach(function(th, index) {
                 th.addEventListener('click', function() {
