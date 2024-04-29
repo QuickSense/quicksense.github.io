@@ -295,13 +295,14 @@
             });
 
             // 对比框排序
+            document.addEventListener('DOMContentLoaded', function() {
             var comparisonThs = document.querySelectorAll('#comparison-table th');
             comparisonThs.forEach(function(th, index) {
                 th.addEventListener('click', function() {
                     sortComparisonTable(index, th.textContent);
                 });
             });
-
+            })
             // 读取CSV文件示例
             readFixedCSV('demo.csv', populateTable);
         });
