@@ -293,16 +293,12 @@
                     sortTable(index, th.textContent);
                 });
             });
+            // 对比框表格的表头点击事件监听器
+            var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
+    comparisonTableHeaders.forEach(function(header, index) {
+        header.addEventListener('click', function() {
+            sortComparisonTable(index, header.textContent);
 
-            // 对比框排序
-            document.addEventListener('DOMContentLoaded', function() {
-            var comparisonThs = document.querySelectorAll('#comparison-table th');
-            comparisonThs.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortComparisonTable(index, th.textContent);
-                });
-            });
-            })
             // 读取CSV文件示例
             readFixedCSV('demo.csv', populateTable);
         });
