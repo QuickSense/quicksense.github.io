@@ -216,35 +216,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var csvFileInput = document.createElement('input');
-            csvFileInput.type = 'file';
-            csvFileInput.accept = '.csv';
-            csvFileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                readCSV(file, populateTable);
-            });
 
-            document.getElementById('search-btn').addEventListener('click', searchTable);
-            document.getElementById('find-btn').addEventListener('click', findInTable);
-            document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
-            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
-            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-            readFixedCSV('demo.csv', populateTable);
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortTable(index, th.textContent);
-            var comparisonThs = document.querySelectorAll('#comparison-table th');
-            comparisonThs.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortComparisonTable(index, th.textContent);
-                });
-            });
-        });
-                // 省略sortTable函数，保持不变
-
-        var ascending = true;
 
 
 
@@ -371,6 +343,47 @@
             }
             comparisonData = [];
         }
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 搜索按钮事件
+    document.getElementById('search-btn').addEventListener('click', searchTable);
+
+    // 查找高亮按钮事件
+    document.getElementById('find-btn').addEventListener('click', findInTable);
+
+    // 取消高亮按钮事件
+    document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
+
+    // 清除对比项按钮事件
+    document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+
+    // 深色模式切换按钮事件
+    document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
+
+    // 读取CSV文件并填充数据表
+    readFixedCSV('demo.csv', populateTable);
+
+    // 数据表排序事件
+    var ths = document.querySelectorAll('#data-table th');
+    ths.forEach(function(th, index) {
+        th.addEventListener('click', function() {
+            sortTable(index, th.textContent);
+        });
+    });
+
+    // 对比框排序事件
+    var comparisonThs = document.querySelectorAll('#comparison-table th');
+    comparisonThs.forEach(function(th, index) {
+        th.addEventListener('click', function() {
+            sortComparisonTable(index, th.textContent);
+        });
+    });
+});
+                // 省略sortTable函数，保持不变
+
+        var ascending = true;
     </script>
 </body> 
 </html>
