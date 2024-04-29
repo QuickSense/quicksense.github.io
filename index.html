@@ -275,27 +275,34 @@
             }
         }
     
-        function findInTable() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("find-input");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("data-table");
-            tr = table.getElementsByTagName("tr");
-            for (i = 1; i < tr.length; i++) {
-                tr[i].style.display = "";
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.backgroundColor = "yellow";
-                        } else {
-                            tr[i].style.backgroundColor = "";
-                        }
-                    }
+function findInTable() {
+    var input, filter, table, tr, td, i, j, txtValue, found;
+    input = document.getElementById("find-input");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("data-table");
+    tr = table.getElementsByTagName("tr");
+
+    // 遍历表格中的所有行
+    for (i = 1; i < tr.length; i++) {
+        found = false; // 用于标记当前行是否包含匹配项
+        td = tr[i].getElementsByTagName("td");
+        // 遍历当前行的所有单元格
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.backgroundColor = "yellow"; // 高亮显示匹配的行
+                    found = true; // 标记找到匹配项
+                    break; // 由于行只需一个匹配项即可高亮，故找到后即终止当前行的遍历
                 }
             }
         }
+        // 如果当前行没有匹配项，则移除背景高亮
+        if (!found) {
+            tr[i].style.backgroundColor = "";
+        }
+    }
+}
     
         function clearHighlight() {
             var table = document.getElementById("data-table");
