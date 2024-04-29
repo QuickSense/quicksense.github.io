@@ -230,7 +230,8 @@
             document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
             document.getElementById('clear-comparison').addEventListener('click', clearComparison);
             document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-             var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
+            readFixedCSV('demo.csv', populateTable);
+                         var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
     comparisonTableHeaders.forEach(function(header, index) {
         header.addEventListener('click', function() {
             sortComparisonTable(index, header.textContent);
@@ -240,11 +241,12 @@
                     sortTable(index, this.textContent);
                 });
             });
-
-            readFixedCSV('demo.csv', populateTable);
         });
+                // 省略sortTable函数，保持不变
 
         var ascending = true;
+
+
 
         function sortTable(columnIndex, columnText) {
             var table = document.getElementById("data-table");
@@ -263,9 +265,7 @@
 
 
 
-        // 省略sortTable函数，保持不变
 
-        var ascending = true;
 
         // 对比框表格排序函数
         function sortComparisonTable(columnIndex, columnText) {
