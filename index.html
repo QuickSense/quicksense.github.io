@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>高考志愿参考——广东 By Ye1Ye</title>
+    <h1>广东理科</h1>
     <style>
         table {
             width: 100%;
@@ -254,6 +255,76 @@
                 table.tBodies[0].appendChild(sortedRows[i]);
             }
             ascending = !ascending;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // CSV文件读取和表格填充
+            var csvFileInput = document.getElementById('csv-file-input');
+            csvFileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                readCSV(file, populateTable);
+            });
+
+            // 搜索按钮事件
+            document.getElementById('search-btn').addEventListener('click', function() {
+                searchTable();
+            });
+
+            // 查找高亮按钮事件
+            document.getElementById('find-btn').addEventListener('click', function() {
+                findInTable();
+            });
+
+            // 取消高亮按钮事件
+            document.getElementById('clear-highlight-btn').addEventListener('click', function() {
+                clearHighlight();
+            });
+
+            // 清除对比项按钮事件
+            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+
+            // 深色模式切换按钮事件
+            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
+
+            // 数据表排序
+            var ths = document.querySelectorAll('#data-table th');
+            ths.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortTable(index, th.textContent);
+                });
+            });
+
+            // 对比框排序
+            var comparisonThs = document.querySelectorAll('#comparison-table th');
+            comparisonThs.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortComparisonTable(index, th.textContent);
+                });
+            });
+
+            // 读取CSV文件示例
+            readFixedCSV('demo.csv', populateTable);
+        });
+
+        // 省略sortTable函数，保持不变
+
+        var ascending = true;
+
+        // 对比框表格排序函数
+        function sortComparisonTable(columnIndex, columnText) {
+            var comparisonTable = document.getElementById("comparison-table");
+            var rows = comparisonTable.rows;
+            var sortedRows = Array.from(rows).slice(1); // 去掉表头
+            sortedRows.sort(function(a, b) {
+                var x = a.cells[columnIndex].textContent.trim();
+                var y = b.cells[columnIndex].textContent.trim();
+                return ascending ? x.localeCompare(y) : y.localeCompare(x);
+            });
+            
+            for (var i = 0; i < sortedRows.length; i++) {
+                comparisonTable.tBodies[0].appendChild(sortedRows[i]);
+            }
+            ascending = !ascending; // 切换排序方向
         }
 
         function searchTable() {
