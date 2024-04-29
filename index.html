@@ -231,6 +231,10 @@
             document.getElementById('clear-comparison').addEventListener('click', clearComparison);
             document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
             readFixedCSV('demo.csv', populateTable);
+            var ths = document.querySelectorAll('#data-table th');
+            ths.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortTable(index, th.textContent);
              var comparisonThs = document.querySelectorAll('#comparison-table th');
             comparisonThs.forEach(function(th, index) {
                 th.addEventListener('click', function() {
