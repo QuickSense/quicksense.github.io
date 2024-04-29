@@ -231,14 +231,10 @@
             document.getElementById('clear-comparison').addEventListener('click', clearComparison);
             document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
             readFixedCSV('demo.csv', populateTable);
-                         var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
-    comparisonTableHeaders.forEach(function(header, index) {
-        header.addEventListener('click', function() {
-            sortComparisonTable(index, header.textContent);
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
+             var comparisonThs = document.querySelectorAll('#comparison-table th');
+            comparisonThs.forEach(function(th, index) {
                 th.addEventListener('click', function() {
-                    sortTable(index, this.textContent);
+                    sortComparisonTable(index, th.textContent);
                 });
             });
         });
@@ -266,7 +262,7 @@
 
 
 
-
+        var ascending = true;
         // 对比框表格排序函数
         function sortComparisonTable(columnIndex, columnText) {
             var comparisonTable = document.getElementById("comparison-table");
