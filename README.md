@@ -1,419 +1,62 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-    <meta charset="UTF-8">
-    <title>高考志愿参考——广东 By Ye1Ye</title>
-    <h1>广东理科</h1>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #eaeaea;
-        }
-        #filter-section {
-            margin-bottom: 10px;
-        }
-        #comparison-box table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        #comparison-box th, #comparison-box td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        #comparison-box th {
-            background-color: #f2f2f2;
-        }
-        .comparison-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f5f5f5;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 3px;
-        }
-        .comparison-header button {
-            margin-left: 10px;
-        }
-        .dark-mode {
-            background-color: #121212;
-            color: #f9981c;
-        }
-        .dark-mode table {
-            border-color: #303030;
-        }
-        .dark-mode th {
-            background-color: #1e1e1e;
-        }
-        .dark-mode tr:nth-child(even) {
-            background-color: #1c1c1c;
-        }
-        .dark-mode tr:hover {
-            background-color: #2a2a2a;
-        }
-        .dark-mode #search-input {
-            background-color: #080808;
-            color: #f9981c;
-            border: 1px solid #0c0000;
-        }
-        .dark-mode #search-input:focus {
-            background-color: #383838;
-            color: #033335;
-            border-color: #555555;
-        }
-    </style>
-</head>
-<body>
-    <div id="filter-section">
-        <input type="text" id="search-input" placeholder="输入关键词搜索...">
-        <button id="search-btn">搜索</button>
-        <input type="text" id="find-input" placeholder="输入关键词查找高亮...">
-        <button id="find-btn">查找高亮</button>
-        <button id="clear-highlight-btn">取消高亮</button>
-        <button id="toggle-darkmode">切换深色模式</button>
-    </div>
-    
-    <div id="comparison-box">
-        <div class="comparison-header">
-            <h2>对比框</h2>
-            <button id="clear-comparison">清除所有对比项</button>
-        </div>
-        <table id="comparison-table">
-            <thead>
-                <tr>
-                    <th>年度</th>
-                    <th>省份</th>
-                    <th>学校</th>
-                    <th>录取批次</th>
-                    <th>文/理（选科要求）</th>
-                    <th>专业</th>
-                    <th>录取最低分</th>
-                    <th>省内排名</th>
-                    <th>本科线（本一）</th>
-                    <th>本二线</th>
-                    <!-- 其他列 -->
-                </tr>
-            </thead>
-            <tbody>
-                <!-- 对比内容将通过JavaScript动态添加 -->
-            </tbody>
-        </table>
-    </div>
+椰汁
+3栋26-6
 
-    <h2>数据表</h2>
-    <table id="data-table">
-        <thead>
-            <tr>
-                <th>年度</th>
-                <th>省份</th>
-                <th>学校</th>
-                <th>录取批次</th>
-                <th>文/理（选科要求）</th>
-                <th>专业</th>
-                <th>录取最低分</th>
-                <th>省内排名</th>
-                <th>本科线（本一）</th>
-                <th>本二线</th>
-                <!-- 根据CSV数据添加其他列 -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 数据行将通过JavaScript动态添加 -->
-        </tbody>
-    </table>
+高考志愿填报辅助
+YeScore
+高考历年分数线
+年度 学校 省份 文理科(选考)  专业  分数
+1.年度 2023
+2.学校 华东师范大学
+3.省份 重庆市
+4.选考要求 物理类
+5.专业计算机科学与技术
+6.分数 610
+7. 名次
 
-    <script>
-        // 使用FileReader API读取CSV文件
-        function readCSV(file, callback) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var rows = e.target.result.split(/\r\n|\n/);
-                var parsedData = [];
-                parsedData.push(rows[0].split(',')); // 头部
-                for (var i = 1; i < rows.length; i++) {
-                    if (rows[i]) {
-                        parsedData.push(rows[i].split(','));
-                    }
-                }
-                callback(parsedData);
-            };
-            reader.readAsText(file);
-        }
+demo数据准备
+学校*1，年度*2,省份*2,选科要求全部，招生批次全部，专业全部，20240425
+demo网站查询功能 20240426
+可访问的网站搭建 20240426
+demo网站全部功能实现
+对比区 将数量限制设为50或者100
+中山大学 哈尔滨工程大学 华东师范大学 大连理工大学 成都理工大学 
+疑似跟华南理工大学赞助了掌上高考，页面都比别的学校更豪华，少了几个Button，导致不适合自动抓取内容数据
 
-        // 将数据行动态添加到表格中
-        function populateTable(data) {
-            var tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
-            tableBody.innerHTML = ''; // 清空表格
-            data.forEach(function(row) {
-                var tr = document.createElement('tr');
-                row.forEach(function(value, index) {
-                    var td = document.createElement('td');
-                    td.textContent = value;
-                    tr.appendChild(td);
-                    if (index === row.length - 1) {
-                        var btn = document.createElement('button');
-                        btn.textContent = '添加到对比框';
-                        btn.onclick = function() {
-                            addToComparison(row);
-                        };
-                        td.appendChild(btn);
-                    }
-                });
-                tableBody.appendChild(tr);
-            });
-        }
+或者说本地的超级大学太没有礼貌了
 
-        var comparisonData = []; // 全局数组，存储对比框的数据
+历年分数数据 爬虫掌上高考
+优化搜索框，去掉实时筛选，只有按钮才触发事件
+发布网站
 
-        function addToComparison(row) {
-            if (comparisonData.length >= 100) {
-                alert('对比框中的项数已达到最大限制（100项）');
-                return;
-            }
-            var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
-            var tr = document.createElement('tr');
-            row.forEach(function(value) {
-                var td = document.createElement('td');
-                td.textContent = value;
-                tr.appendChild(td);
-            });
-            var deleteButton = document.createElement('button');
-            deleteButton.textContent = '删除';
-            deleteButton.onclick = function() {
-                removeFromComparison(tr);
-            };
-            var tdButton = document.createElement('td');
-            tdButton.appendChild(deleteButton);
-            tr.appendChild(tdButton);
-            comparisonTableBody.appendChild(tr);
-            comparisonData.push(row); // 将当前行数据添加到全局数组
-        }
+使用说明
+这里是一个高考志愿参考工具，免费！开源！可以截图或者复制到剪贴板，写在文档里面，做一个记录便于查阅和交流。以两种形式呈现：
+一是在线的可访问的github的网页；
+二是在线表格，在不适合访问网页的情况下，可以直接使用在线表格，进行参考。
+网页：
+使用搜索框和排序按钮，筛选出适合自己分数排名的专业，添加到对比框进行参考
+在线表格：
+下载后，按需要筛选出适合自己分数排名的专业，突出显示后筛选颜色，进行参考
 
-        function removeFromComparison(trElement) {
-            var index = comparisonData.findIndex(function(row) {
-                return row.join('') === Array.from(trElement.getElementsByTagName('td')).slice(0, -1).map(td => td.textContent).join('');
-            });
-            if (index > -1) {
-                comparisonData.splice(index, 1); // 从对比数据中移除
-                trElement.remove(); // 从DOM中移除
-            }
-        }
+希望对你有帮助！
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var csvFileInput = document.createElement('input');
-            csvFileInput.type = 'file';
-            csvFileInput.accept = '.csv';
-            csvFileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                readCSV(file, populateTable);
-            });
+接下来是做这个的原因：
+这个网站本来是给我表弟做的，因为他今年高考。
+但我看反正都做了，索性把数据做多一点，要是有别的人用得上也行。当然，这个网站项目从头到脚都十分粗鄙，有很多不足。
+现在，信息爆炸，顾名思义很难，饭店 里大部分都是 菜，酒店 里都是床，微信一点不 微，占的空间大得要手机的命，因为它的洋文名字是WeChat，不是SamllChat，我看是 死妈(消音)Chat。
+学校和专业也是，光看名字无法得到有效信息，网络风评和人们的口耳相传为志愿填报提供了海量的信息，许多评价和观点是有效信息，但另一方面，其中也包含太多的噪声。
+不仅如此，现在的志愿填报，要填太多数量的志愿，平行志愿多达几十甚至上百个，那么落在考虑范围内的志愿就更多了。
+混沌的参考信息和繁重的填报任务给同学们带来巨大的负担。
+其中一个主要的痛点是同学每天用功或不用功读书，变得麻木而迷茫，对即将到来的大学和专业的选择毫无概念，根本不知道自己有许多的选择，很多！也更不知道自己能填的有哪些。
+因此我这里提供了一个从分数和排名出发的高考志愿参考工具，分数和排名是同学最熟悉的事情，不需要额外的阅历和经验的堆积，从这里出发是比较轻松而便捷的。
+当然，我的数据不是很全。仅仅只是给一个参考，在知晓自己的分数和省内排名后，让同学形成基本的选择范围。
+真正到了志愿填报的时候，还是需要通过这些概念的形成和逐步深化，理解志愿填报规则，查阅官方的志愿书，认真详细地对比，通过多方的信息渠道，比如去官网和论坛，找学长学姐校友同学等，了解你感兴趣的学校和专业，形成合理的认知，填报出对自己负责任的志愿。
 
-            document.getElementById('search-btn').addEventListener('click', searchTable);
-            document.getElementById('find-btn').addEventListener('click', findInTable);
-            document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
-            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
-            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
 
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortTable(index, this.textContent);
-                });
-            });
-
-            readFixedCSV('demo.csv', populateTable);
-        });
-
-        var ascending = true;
-
-        function sortTable(columnIndex, columnText) {
-            var table = document.getElementById("data-table");
-            var rows = table.rows;
-            var sortedRows = Array.from(rows).slice(1);
-            sortedRows.sort(function(a, b) {
-                var x = a.cells[columnIndex].textContent.trim();
-                var y = b.cells[columnIndex].textContent.trim();
-                return ascending ? x.localeCompare(y) : y.localeCompare(x);
-            });
-            for (var i = 0; i < sortedRows.length; i++) {
-                table.tBodies[0].appendChild(sortedRows[i]);
-            }
-            ascending = !ascending;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // CSV文件读取和表格填充
-            var csvFileInput = document.getElementById('csv-file-input');
-            csvFileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                readCSV(file, populateTable);
-            });
-
-            // 搜索按钮事件
-            document.getElementById('search-btn').addEventListener('click', function() {
-                searchTable();
-            });
-
-            // 查找高亮按钮事件
-            document.getElementById('find-btn').addEventListener('click', function() {
-                findInTable();
-            });
-
-            // 取消高亮按钮事件
-            document.getElementById('clear-highlight-btn').addEventListener('click', function() {
-                clearHighlight();
-            });
-
-            // 清除对比项按钮事件
-            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
-
-            // 深色模式切换按钮事件
-            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-
-            // 数据表排序
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortTable(index, th.textContent);
-                });
-            });
-
-            // 对比框排序
-            var comparisonThs = document.querySelectorAll('#comparison-table th');
-            comparisonThs.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortComparisonTable(index, th.textContent);
-                });
-            });
-
-            // 读取CSV文件示例
-            readFixedCSV('demo.csv', populateTable);
-        });
-
-        // 省略sortTable函数，保持不变
-
-        var ascending = true;
-
-        // 对比框表格排序函数
-        function sortComparisonTable(columnIndex, columnText) {
-            var comparisonTable = document.getElementById("comparison-table");
-            var rows = comparisonTable.rows;
-            var sortedRows = Array.from(rows).slice(1); // 去掉表头
-            sortedRows.sort(function(a, b) {
-                var x = a.cells[columnIndex].textContent.trim();
-                var y = b.cells[columnIndex].textContent.trim();
-                return ascending ? x.localeCompare(y) : y.localeCompare(x);
-            });
-            
-            for (var i = 0; i < sortedRows.length; i++) {
-                comparisonTable.tBodies[0].appendChild(sortedRows[i]);
-            }
-            ascending = !ascending; // 切换排序方向
-        }
-
-        function searchTable() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("search-input");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("data-table");
-            tr = table.getElementsByTagName("tr");
-            for (i = 1; i < tr.length; i++) {
-                tr[i].style.display = "none";            td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                        }
-                    }
-                }
-            }
-        }
-    
-        function findInTable() {
-            var input, filter, table, tr, td, i, j, txtValue;
-            input = document.getElementById("find-input");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("data-table");
-            tr = table.getElementsByTagName("tr");
-            for (i = 1; i < tr.length; i++) {
-                tr[i].style.display = "";
-                td = tr[i].getElementsByTagName("td");
-                for (j = 0; j < td.length; j++) {
-                    if (td[j]) {
-                        txtValue = td[j].textContent || td[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.backgroundColor = "yellow";
-                        } else {
-                            tr[i].style.backgroundColor = "";
-                        }
-                    }
-                }
-            }
-        }
-    
-        function clearHighlight() {
-            var table = document.getElementById("data-table");
-            var trs = table.getElementsByTagName("tr");
-            for (var i = 1; i < trs.length; i++) {
-                trs[i].style.backgroundColor = "";
-            }
-        }
-    
-        function toggleDarkMode() {
-            var body = document.body;
-            body.classList.toggle('dark-mode');
-        }
-    
-        function readFixedCSV(filename, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', filename, true);
-            xhr.onload = function(e) {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        var rows = xhr.responseText.split(/\r\n|\n/);
-                        var parsedData = [];
-                        parsedData.push(rows[0].split(',')); // 头部
-                        for (var i = 1; i < rows.length; i++) {
-                            if (rows[i]) {
-                                parsedData.push(rows[i].split(','));
-                            }
-                        }
-                        callback(parsedData);
-                    } else {
-                        console.error('Could not load the CSV file.');
-                    }
-                }
-            };
-            xhr.onerror = function(e) {
-                console.error('Failed to read the CSV file.');
-            };
-            xhr.send(null);
-        }
-    
-        function clearComparison() {
-            var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
-            while (comparisonTableBody.firstChild) {
-                comparisonTableBody.removeChild(comparisonTableBody.firstChild);
-            }
-            comparisonData = [];
-        }
-    </script>
-</body> 
-</html>
+关于网页
+我乱做的
+网页主要是使用github的Page功能，使用AI编写的html文件，其中包含了JavaScript脚本来实现筛选查询等功能，CSS的样式设计是随便弄的。
+我没有读过计算机专业，我不知道这样的项目是否可以作为毕业设计什么的，如果你需要，可以在github上fork或者下载这个网页所有的代码和数据，如果有用，你甚至可以点star。
+关于数据来源
+我随便找的
+数据都是我自己用AI辅助写的脚本从互联网上提取的，肯定会有错误，如果错了建议你狠狠地骂。
+如果有足够的支持，这个项目可以做得很漂亮！
