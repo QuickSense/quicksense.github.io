@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
-    <title>CSV Data Table</title>
+    <title>高考志愿参考——广东 By Ye1Ye</title>
     <style>
         table {
             width: 100%;
@@ -90,7 +90,7 @@
     
     <div id="comparison-box">
         <div class="comparison-header">
-            <h3>对比框</h3>
+            <h2>对比框</h2>
             <button id="clear-comparison">清除所有对比项</button>
         </div>
         <table id="comparison-table">
@@ -106,6 +106,7 @@
                     <th>省内排名</th>
                     <th>本科线（本一）</th>
                     <th>本二线</th>
+                    <!-- 其他列 -->
                 </tr>
             </thead>
             <tbody>
@@ -128,6 +129,7 @@
                 <th>省内排名</th>
                 <th>本科线（本一）</th>
                 <th>本二线</th>
+                <!-- 根据CSV数据添加其他列 -->
             </tr>
         </thead>
         <tbody>
@@ -163,7 +165,6 @@
                     var td = document.createElement('td');
                     td.textContent = value;
                     tr.appendChild(td);
-                    // 不含操作按钮的列
                     if (index === row.length - 1) {
                         var btn = document.createElement('button');
                         btn.textContent = '添加到对比框';
@@ -177,11 +178,11 @@
             });
         }
 
+        var comparisonData = []; // 全局数组，存储对比框的数据
 
-        // 更新 addToComparison 函数以创建表格行
         function addToComparison(row) {
             if (comparisonData.length >= 100) {
-                alert('对比框中的项数已达到最大限制（20项）');
+                alert('对比框中的项数已达到最大限制（100项）');
                 return;
             }
             var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
@@ -191,7 +192,6 @@
                 td.textContent = value;
                 tr.appendChild(td);
             });
-            // 删除按钮
             var deleteButton = document.createElement('button');
             deleteButton.textContent = '删除';
             deleteButton.onclick = function() {
@@ -200,15 +200,12 @@
             var tdButton = document.createElement('td');
             tdButton.appendChild(deleteButton);
             tr.appendChild(tdButton);
-
             comparisonTableBody.appendChild(tr);
             comparisonData.push(row); // 将当前行数据添加到全局数组
         }
 
-        // 删除特定对比项的函数
         function removeFromComparison(trElement) {
             var index = comparisonData.findIndex(function(row) {
-                // 假设每一行数据都是唯一的，可以通过行数据查找
                 return row.join('') === Array.from(trElement.getElementsByTagName('td')).slice(0, -1).map(td => td.textContent).join('');
             });
             if (index > -1) {
@@ -217,134 +214,135 @@
             }
         }
 
+        document.addEventListener('DOMContentLoaded', function() {
+            var csvFileInput = document.createElement('input');
+            csvFileInput.type = 'file';
+            csvFileInput.accept = '.csv';
+            csvFileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                readCSV(file, populateTable);
+            });
 
-        // 搜索表
+            document.getElementById('search-btn').addEventListener('click', searchTable);
+            document.getElementById('find-btn').addEventListener('click', findInTable);
+            document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
+            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
+            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
+
+            var ths = document.querySelectorAll('#data-table th');
+            ths.forEach(function(th, index) {
+                th.addEventListener('click', function() {
+                    sortTable(index, this.textContent);
+                });
+            });
+
+            readFixedCSV('demo.csv', populateTable);
+        });
+
+        var ascending = true;
+
+        function sortTable(columnIndex, columnText) {
+            var table = document.getElementById("data-table");
+            var rows = table.rows;
+            var sortedRows = Array.from(rows).slice(1);
+            sortedRows.sort(function(a, b) {
+                var x = a.cells[columnIndex].textContent.trim();
+                var y = b.cells[columnIndex].textContent.trim();
+                return ascending ? x.localeCompare(y) : y.localeCompare(x);
+            });
+            for (var i = 0; i < sortedRows.length; i++) {
+                table.tBodies[0].appendChild(sortedRows[i]);
+            }
+            ascending = !ascending;
+        }
+
         function searchTable() {
             var input, filter, table, tr, td, i, j, txtValue;
             input = document.getElementById("search-input");
             filter = input.value.toUpperCase();
             table = document.getElementById("data-table");
             tr = table.getElementsByTagName("tr");
-
-            for (i = 1; i < tr.length; i++) { // 跳过表头
-                tr[i].style.display = "none"; // 先全部隐藏
-                td = tr[i].getElementsByTagName("td");
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";            td = tr[i].getElementsByTagName("td");
                 for (j = 0; j < td.length; j++) {
                     if (td[j]) {
                         txtValue = td[j].textContent || td[j].innerText;
                         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = ""; // 显示匹配的行
+                            tr[i].style.display = "";
                         }
                     }
                 }
             }
         }
-        function sortTable(tableId, columnIndex, ascending = true) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById(tableId);
-            switching = true;
-            // 设置排序方向
-            dir = ascending ? "asc" : "desc";
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[columnIndex];
-                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
-                    if (dir == "asc") {
-                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else if (dir == "desc") {
-                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
-                }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    switchcount++;
-                } else {
-                    if (switchcount == 0 && !ascending) {
-                        // 如果第一次没有排序成功，并且是降序，则自动变为升序
-                        ascending = true;
-                        switching = true;
-                    }
-                }
-            }
-        }
-
-        // 绑定排序事件
-        function bindSortEvent(tableId) {
-            var ths = document.querySelectorAll(`#${tableId} th`);
-            ths.forEach(th => {
-                th.addEventListener('click', function() {
-                    var columnIndex = Array.prototype.indexOf.call(ths, th);
-                    sortTable(tableId, columnIndex);
-                });
-            });
-        }
-
-        // 查找高亮
+    
         function findInTable() {
             var input, filter, table, tr, td, i, j, txtValue;
             input = document.getElementById("find-input");
             filter = input.value.toUpperCase();
             table = document.getElementById("data-table");
             tr = table.getElementsByTagName("tr");
-
-            // 先移除之前的高亮
             for (i = 1; i < tr.length; i++) {
-                tr[i].style.backgroundColor = "";
-                tr[i].style.display = ""; // 确保所有行都是可见的
-            }
-
-            for (i = 1; i < tr.length; i++) { // 跳过表头
+                tr[i].style.display = "";
                 td = tr[i].getElementsByTagName("td");
                 for (j = 0; j < td.length; j++) {
                     if (td[j]) {
                         txtValue = td[j].textContent || td[j].innerText;
                         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.backgroundColor = "yellow"; // 高亮显示
-                            break;
+                            tr[i].style.backgroundColor = "yellow";
+                        } else {
+                            tr[i].style.backgroundColor = "";
                         }
                     }
                 }
             }
         }
-
-        // 取消高亮
+    
         function clearHighlight() {
             var table = document.getElementById("data-table");
             var trs = table.getElementsByTagName("tr");
-            for (var i = 1; i < trs.length; i++) { // 跳过表头
+            for (var i = 1; i < trs.length; i++) {
                 trs[i].style.backgroundColor = "";
             }
         }
-
-        // 切换深色模式
+    
         function toggleDarkMode() {
             var body = document.body;
             body.classList.toggle('dark-mode');
         }
-        var comparisonData = []; // 全局数组，存储对比框的数据
-        // 页面加载时读取CSV文件并填充表格
-        document.addEventListener('DOMContentLoaded', function() {
-            readCSV('demo.csv', populateTable);
-            document.getElementById('filter-section').appendChild(csvFileInput);
-
-            // 绑定按钮事件
-            document.getElementById('search-btn').addEventListener('click', searchTable);
-            document.getElementById('find-btn').addEventListener('click', findInTable);
-            document.getElementById('clear-highlight-btn').addEventListener('click', clearHighlight);
-            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-            bindSortEvent('data-table');
-            bindSortEvent('comparison-table');
-        });
+    
+        function readFixedCSV(filename, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', filename, true);
+            xhr.onload = function(e) {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        var rows = xhr.responseText.split(/\r\n|\n/);
+                        var parsedData = [];
+                        parsedData.push(rows[0].split(',')); // 头部
+                        for (var i = 1; i < rows.length; i++) {
+                            if (rows[i]) {
+                                parsedData.push(rows[i].split(','));
+                            }
+                        }
+                        callback(parsedData);
+                    } else {
+                        console.error('Could not load the CSV file.');
+                    }
+                }
+            };
+            xhr.onerror = function(e) {
+                console.error('Failed to read the CSV file.');
+            };
+            xhr.send(null);
+        }
+    
+        function clearComparison() {
+            var comparisonTableBody = document.getElementById('comparison-table').getElementsByTagName('tbody')[0];
+            while (comparisonTableBody.firstChild) {
+                comparisonTableBody.removeChild(comparisonTableBody.firstChild);
+            }
+            comparisonData = [];
+        }
     </script>
-</body>
+</body> 
 </html>
