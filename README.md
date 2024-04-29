@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>高考志愿参考——广东 By Ye1Ye</title>
+    <h1>广东理科</h1>
     <style>
         table {
             width: 100%;
