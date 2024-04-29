@@ -258,51 +258,7 @@
             ascending = !ascending;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // CSV文件读取和表格填充
-            var csvFileInput = document.getElementById('csv-file-input');
-            csvFileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                readCSV(file, populateTable);
-            });
 
-            // 搜索按钮事件
-            document.getElementById('search-btn').addEventListener('click', function() {
-                searchTable();
-            });
-
-            // 查找高亮按钮事件
-            document.getElementById('find-btn').addEventListener('click', function() {
-                findInTable();
-            });
-
-            // 取消高亮按钮事件
-            document.getElementById('clear-highlight-btn').addEventListener('click', function() {
-                clearHighlight();
-            });
-
-            // 清除对比项按钮事件
-            document.getElementById('clear-comparison').addEventListener('click', clearComparison);
-
-            // 深色模式切换按钮事件
-            document.getElementById('toggle-darkmode').addEventListener('click', toggleDarkMode);
-
-            // 数据表排序
-            var ths = document.querySelectorAll('#data-table th');
-            ths.forEach(function(th, index) {
-                th.addEventListener('click', function() {
-                    sortTable(index, th.textContent);
-                });
-            });
-            // 对比框表格的表头点击事件监听器
-            var comparisonTableHeaders = document.querySelectorAll('#comparison-table th');
-    comparisonTableHeaders.forEach(function(header, index) {
-        header.addEventListener('click', function() {
-            sortComparisonTable(index, header.textContent);
-
-            // 读取CSV文件示例
-            readFixedCSV('demo.csv', populateTable);
-        });
 
         // 省略sortTable函数，保持不变
 
